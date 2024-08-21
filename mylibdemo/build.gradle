@@ -54,9 +54,9 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                groupId = 'com.github.pkraj1994'
+                groupId = 'com.github.POCQR'
                 group = 'mylibdemo'
-                version = '1.2.2'
+                version = '1.0.0'
             }
         }
     }
