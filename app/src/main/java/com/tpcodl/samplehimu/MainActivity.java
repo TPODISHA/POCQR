@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
                // Context context,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i
 
-          Bitmap bitmap= CommonMethod.callGetTokenAPI(MainActivity.this,"80000002735","S",26.3,"21-08-2024",100.0,"21-07-2024","09-09-2024",200.0,200.0,0);
+          Bitmap bitmap= CommonMethod.callGetTokenAPI(MainActivity.this,"80000002735","S",26.3,"22-08-2024",100.0,"22-07-2024","09-09-2024",200.0,200.0,0,"https://authservice.tpcentralodisha.com/","https://tqr.tpodisha.com/ScanIdAPI/");
 
                 System.out.println("cvcb==caal");
             }

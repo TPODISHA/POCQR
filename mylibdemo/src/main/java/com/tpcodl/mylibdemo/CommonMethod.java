@@ -318,7 +318,7 @@ public class CommonMethod {
 
     }
 
-    public static Bitmap callGetTokenAPI(Context context,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i) {
+    public static Bitmap callGetTokenAPI(Context context,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i,String base1,String base2) {
 
         try {
             JsonObject obj = new JsonObject();
@@ -327,7 +327,7 @@ public class CommonMethod {
             obj.addProperty("resource", "AppEncoder");
             obj.addProperty("appId", "47d21dc7-788c-4402-872d-bc55dac0e146");
 
-            ApiInterface service = RetrofitClientInstanceQrCode.postAuthenticationInstance().create(ApiInterface.class);
+            ApiInterface service = RetrofitClientInstanceQrCode.postAuthenticationInstance(base1).create(ApiInterface.class);
             Call<TokenResponse> stringCall = service.callAuthenticationAPI("2262cb58-76cf-4a9f-b7b8-bd4ff207f18f", obj);
 
             stringCall.enqueue(new Callback<TokenResponse>() {
@@ -339,7 +339,7 @@ public class CommonMethod {
                             System.out.println("token---   " + response.body().getToken());
                             //getImages(true, "Bearer "+response.body().getToken());
                             String  sToken = response.body().getToken();
-                            bitmap2=    postScanData(context,sToken, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i);
+                            bitmap2=    postScanData(context,sToken, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,base2);
 
                         } else {
                         }
@@ -364,10 +364,10 @@ public class CommonMethod {
         return bitmap2;
     }
 
-    public static Bitmap postScanData(Context context,String sToken,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i) {
+    public static Bitmap postScanData(Context context,String sToken,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i,String base2) {
 
         try {
-            ApiInterface service = RetrofitClientInstanceQrCode.postRetrofitInstance().create(ApiInterface.class);
+            ApiInterface service = RetrofitClientInstanceQrCode.postRetrofitInstance(base2).create(ApiInterface.class);
             ScanDataRequest scanData = new ScanDataRequest();
             scanData.setType("BILLQR");
             scanData.setDiscom("TPCODL");

@@ -28,7 +28,7 @@ public class RetrofitClientInstanceQrCode {
 
     private static final String BASE_URL1 = "https://authservice.tpcentralodisha.com/";
 
-    public static Retrofit postRetrofitInstance() {
+    public static Retrofit postRetrofitInstance(String base2) {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.protocols(Util.immutableList(Protocol.HTTP_1_1));
         httpClient.connectTimeout(300, TimeUnit.SECONDS);
@@ -43,7 +43,7 @@ public class RetrofitClientInstanceQrCode {
         OkHttpClient client = httpClient.build();
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(base2)
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
@@ -51,7 +51,7 @@ public class RetrofitClientInstanceQrCode {
         return retrofit;
     }
 
-    public static Retrofit postAuthenticationInstance() {
+    public static Retrofit postAuthenticationInstance(String baseUrl) {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.protocols(Util.immutableList(Protocol.HTTP_1_1));
         httpClient.connectTimeout(300, TimeUnit.SECONDS);
@@ -60,7 +60,7 @@ public class RetrofitClientInstanceQrCode {
         OkHttpClient client = httpClient.build();
         if (retrofit1 == null) {
             retrofit1 = new Retrofit.Builder()
-                    .baseUrl(BASE_URL1)
+                    .baseUrl(baseUrl)
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
