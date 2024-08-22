@@ -67,7 +67,7 @@ publishing {
         mavenA(MavenPublication) {
             groupId = 'com.github.POCQR'
             artifactId = 'mylibdemo'
-            version = '1.0.3'
+            version = '1.0.4'
 
             afterEvaluate {
                 // Ensure the `aar` is published
