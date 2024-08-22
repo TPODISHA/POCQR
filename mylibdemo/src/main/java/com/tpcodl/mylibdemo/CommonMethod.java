@@ -2,6 +2,7 @@ package com.tpcodl.mylibdemo;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -115,58 +116,6 @@ public class CommonMethod {
 
 
 
-
-
-
-    public static void saveUserId(String userId, Context mContext){
-        SharedPreferences sharedPreferences = mContext.getSharedPreferences("MySharedPrefOCR",MODE_PRIVATE);
-
-        SharedPreferences.Editor myEdit = sharedPreferences.edit();
-        myEdit.putString("userID", userId.toString().trim());
-        myEdit.apply();
-    }
-
-    public static String  getUserId(Context mContext){
-        String userId="";
-        SharedPreferences sh = mContext.getSharedPreferences("MySharedPrefOCR", MODE_PRIVATE);
-
-        userId = sh.getString("userID", "");
-
-       return userId;
-    }
-
-    public static boolean checkGPS(Context mContext) {
-        boolean gpsEnable = false;
-        final LocationManager manager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-
-        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            // buildAlertMessageNoGps(mContext);
-            gpsEnable = false;
-        } else {
-            gpsEnable = true;
-        }
-
-        return gpsEnable;
-    }
-
-    public static boolean isValidMobile(String s)
-    {
-
-        // The given argument to compile() method
-        // is regular expression. With the help of
-        // regular expression we can validate mobile
-        // number.
-        // 1) Begins with 0 or 91
-        // 2) Then contains 6,7 or 8 or 9.
-        // 3) Then contains 9 digits
-        Pattern p = Pattern.compile("(0|91)?[6-9][0-9]{9}");
-
-        // Pattern class contains matcher() method
-        // to find matching between given number
-        // and regular expression
-        Matcher m = p.matcher(s);
-        return (m.find() && m.group().equals(s));
-    }
 
 
 
@@ -318,17 +267,174 @@ public class CommonMethod {
 
     }
 
-    public static Bitmap callGetTokenAPI(Context context,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i,String base1,String base2) {
+
+
+
+    public static Bitmap generateQrCodeValueCA(Context context, String CA, String billTyp,int i,ScanDataResponse dataResponse) {
+        //curAmount=1004
+        //AmountBefDigRbt=1004
+        // totalPayAmount=1020
+        // blBfrDueDt=1010
+
+        //   getScanId();
+        //  DatabaseHelper db = new DatabaseHelper(context);
+
+
+        for (int j=0;j<dataResponse.getData().size();j++){
+            GetSanDataValueModel modalLocalData=new GetSanDataValueModel();
+
+            modalLocalData.setSaltkey(dataResponse.getSaltKey());
+            modalLocalData.setVersionkey(dataResponse.getVersionKey());
+            modalLocalData.setIv_dec(dataResponse.getIv());
+            modalLocalData.setBaseUrl(dataResponse.getBaseUrl());
+            modalLocalData.setEnctypeid(dataResponse.getData().get(j).getENC_TYPE_ID());
+            modalLocalData.setScanid(dataResponse.getData().get(j).getScanId());
+            modalLocalData.setPosition(dataResponse.getData().get(j).getPosition());
+            modalLocalData.setIv_enc(dataResponse.getData().get(j).getT1());
+            modalLocalData.setStartDate(dataResponse.getData().get(j).getStartdate());
+            modalLocalData.setEndDate(dataResponse.getData().get(j).getEndDate());
+
+
+            dataValueModels.add(modalLocalData);
+
+        }
+
+
+        // dataValueModels = db.getScanDataValue();
+
+        // int sec = db.fetch_SecData();
+
+        Calendar calendar = Calendar.getInstance();
+        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+        int minutes = calendar.get(Calendar.MINUTE);
+        int sec = calendar.get(Calendar.SECOND);
+
+        // Format the time
+        String timeString = String.format("%02d:%02d:%02d", hours, minutes, sec);
+        Log.d("CurrentTime", timeString);
+
+
+        int scanLength = 0;
+        scanLength = dataValueModels.size();//6
+        int cntKey = 0;
+        try {
+            if (sec < scanLength) {
+                cntKey = sec;
+            } else {
+                cntKey = sec % scanLength;
+            }
+
+            sSaltKey = dataValueModels.get(cntKey).getSaltkey(); //using for enc and dec
+            sVersionKey = dataValueModels.get(cntKey).getVersionkey(); //using for enc and dec
+            sIvDec = dataValueModels.get(cntKey).getIv_dec(); //using for dec
+            sEncBaseUrl = dataValueModels.get(cntKey).getBaseUrl(); // to dec
+            sEncryptedTypeId = dataValueModels.get(cntKey).getEnctypeid(); //sending direct value
+            sEncryptedScanId = dataValueModels.get(cntKey).getScanid(); // sending direct value
+            sEncryptedPosition = dataValueModels.get(cntKey).getPosition(); // to dec
+            sIvEnc = dataValueModels.get(cntKey).getIv_enc(); //using for enc
+            sEncryptedStartDate = dataValueModels.get(cntKey).getStartDate(); // to dec
+            sEncryptedEndDate = dataValueModels.get(cntKey).getEndDate(); // to dec
+
+
+        } catch (Exception e) {
+            cntKey = 0;
+        }
+
+
+        // new TestAsync().execute();
+
+        System.out.println("sec==" + sec);
+
+        try {
+            sEncryptedCaMrText = encryptAES(CA + "|" + billTyp + "|" , sVersionKey, sIvEnc, sSaltKey);//with all param
+            //  sEncryptedCaMrText = encryptAES(sCA + "|" + sBillType+ "|" + sPayAmount+ "|" + sCurBillDate+ "|" + sArrear + "|" + sLastBillDate + "|" + sDueDate + "|" + sBillBefDigReb + "|" + sBillBefDueDate, versionkey, iv, saltkey);
+            //  sEncryptedCaMrText = encryptAES(sCA + "|" + sBillType+ "|" + sPayAmount+ "|" + sCurBillDate+ "|" + sArrear + "|" + sLastBillDate + "|" + sDueDate + "|" + sBillBefDigReb + "|" + sBillBefDueDate, versionkey, iv, saltkey);//with all param hard coded
+            System.out.println("Encrypted text: " + sEncryptedCaMrText);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            sDecryptedBaseUrl = decryptAES(sEncBaseUrl, sVersionKey, sIvDec, sSaltKey);
+            System.out.println("Decrypted text: " + sDecryptedBaseUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            sDecryptedPosition = decryptAES(sEncryptedPosition, sVersionKey, sIvDec, sSaltKey);
+            System.out.println("Decrypted text: " + sDecryptedPosition);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            sDecryptedStartDAte = decryptAES(sEncryptedStartDate, sVersionKey, sIvDec, sSaltKey);
+            System.out.println("Decrypted text: " + sDecryptedStartDAte);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            sDecryptedEndDate = decryptAES(sEncryptedEndDate, sVersionKey, sIvDec, sSaltKey);
+            System.out.println("Decrypted text: " + sDecryptedEndDate);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            String fghjk = decryptAES(sEncryptedCaMrText, sVersionKey, sIvEnc, sSaltKey);
+            System.out.println("Decrypted text: " + fghjk);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        iPos = Integer.parseInt(sDecryptedPosition.substring(0, 2));
+        System.out.println("fhcdxgf==" + iPos);
+        sFirstEncData = sEncryptedCaMrText.substring(0, iPos);
+        System.out.println("fhcdxgf==" + sFirstEncData);
+        sLastEncData = sEncryptedCaMrText.substring(iPos);
+        System.out.println("fhcdxgf==" + sLastEncData);
+        // Date date1=new SimpleDateFormat("dd/MM/yyyy").parse(sDate1);
+
+        // int validflg=chkValidity();
+
+        Bitmap bitmap=  generateQR(i);
+
+        bitmap=AppUtils.compressImage(bitmap);
+
+
+        Intent intent = new Intent("com.example.SEND_IMAGE"); // Custom action string
+        // intent.setPackage("com.tpcodl.samplehimu"); // Optional: specify the target app
+        byte[] imageBytes = bitmapToByteArray(bitmap);
+        intent.putExtra("image_data", imageBytes);
+        context.sendBroadcast(intent);
+
+        return bitmap;
+
+    }
+
+
+
+
+
+
+
+
+
+
+    public static Bitmap callGetTokenAPI(Context context,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i,String base1,String base2,String clientId,String clientSecret,String resource,String appId,String token,String type,String discom) {
+
+        if (isNetworkConnected(context)) {
+           // clientId,clientSecret,resource,appId,token,type,discom
 
         try {
             JsonObject obj = new JsonObject();
-            obj.addProperty("clientId", "188189a4-48ae-4011-8941-cead0fa4e683");
-            obj.addProperty("clientSecret", "44c81ff8-ae45-4a5c-833b-02e021f4069a");
-            obj.addProperty("resource", "AppEncoder");
-            obj.addProperty("appId", "47d21dc7-788c-4402-872d-bc55dac0e146");
+            obj.addProperty("clientId", clientId);
+            obj.addProperty("clientSecret", clientSecret);
+            obj.addProperty("resource", resource);
+            obj.addProperty("appId", appId);
 
             ApiInterface service = RetrofitClientInstanceQrCode.postAuthenticationInstance(base1).create(ApiInterface.class);
-            Call<TokenResponse> stringCall = service.callAuthenticationAPI("2262cb58-76cf-4a9f-b7b8-bd4ff207f18f", obj);
+            Call<TokenResponse> stringCall = service.callAuthenticationAPI(token, obj);
 
             stringCall.enqueue(new Callback<TokenResponse>() {
                 @Override
@@ -338,21 +444,62 @@ public class CommonMethod {
                         if (response.body().getMessage().equalsIgnoreCase("Success")) {
                             System.out.println("token---   " + response.body().getToken());
                             //getImages(true, "Bearer "+response.body().getToken());
-                            String  sToken = response.body().getToken();
-                            bitmap2=    postScanData(context,sToken, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,base2);
+                            String sToken = response.body().getToken();
+                            bitmap2 = postScanData(context, sToken, CA, billTyp, totalPayAmount, curBilDate, arrear, prevblDate, duedate, BillBefDigRbt, blBfrDueDt, i, base2,type,discom);
 
                         } else {
+
+                            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                            Gson gson = new Gson();
+                            String jsons = mPrefs.getString("MyObject", "");
+                            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                            System.out.println("Sadfgh=="+obj.getIv());
+
+                            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+
+
                         }
                     } else if (response.code() == 400) {
                         Toast.makeText(context, response.body().toString(), Toast.LENGTH_SHORT).show();
+
+                        SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                        Gson gson = new Gson();
+                        String jsons = mPrefs.getString("MyObject", "");
+                        ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                        System.out.println("Sadfgh=="+obj.getIv());
+
+                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+
+
                     } else {
                         Toast.makeText(context, "Something went wrong !!", Toast.LENGTH_LONG).show();
+                        SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                        Gson gson = new Gson();
+                        String jsons = mPrefs.getString("MyObject", "");
+                        ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                        System.out.println("Sadfgh=="+obj.getIv());
+
+                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+
                     }
                 }
 
                 @Override
                 public void onFailure(Call<TokenResponse> call, Throwable t) {
                     Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+                    SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                    Gson gson = new Gson();
+                    String jsons = mPrefs.getString("MyObject", "");
+                    ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                    System.out.println("Sadfgh=="+obj.getIv());
+
+                    generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+
                 }
             });
 
@@ -360,17 +507,40 @@ public class CommonMethod {
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+
+            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+            Gson gson = new Gson();
+            String jsons = mPrefs.getString("MyObject", "");
+            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+            System.out.println("Sadfgh=="+obj.getIv());
+
+            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+
+
+        }
+
+    }else {
+
+            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+            Gson gson = new Gson();
+            String jsons = mPrefs.getString("MyObject", "");
+            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+            System.out.println("Sadfgh=="+obj.getIv());
+
+            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
         }
         return bitmap2;
     }
 
-    public static Bitmap postScanData(Context context,String sToken,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i,String base2) {
-
+    public static Bitmap postScanData(Context context,String sToken,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i,String base2,String type,String discom) {
+        if (isNetworkConnected(context)) {
         try {
             ApiInterface service = RetrofitClientInstanceQrCode.postRetrofitInstance(base2).create(ApiInterface.class);
             ScanDataRequest scanData = new ScanDataRequest();
-            scanData.setType("BILLQR");
-            scanData.setDiscom("TPCODL");
+            scanData.setType(type);
+            scanData.setDiscom(discom);
 
             Call<ScanDataResponse> call = service.call_ScanDataApi("Bearer" + " " + sToken, scanData);
             call.enqueue(new Callback<ScanDataResponse>() {
@@ -390,6 +560,25 @@ public class CommonMethod {
                             sApiEncBaseUrl = dataResponse.getBaseUrl();
 
                             int scanLength = 0;
+
+                            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+
+                            SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                            Gson gson = new Gson();
+                            String json = gson.toJson(dataResponse);
+                            prefsEditor.putString("MyObject", json);
+                            prefsEditor.commit();
+
+
+
+
+
+                           /* String jsons = mPrefs.getString("MyObject", "");
+                            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                            System.out.println("Sadfgh=="+obj.getBaseUrl());*/
+
+
 
                             scanLength = dataValueModels.size();//6
 
@@ -419,15 +608,47 @@ public class CommonMethod {
 
                             }*/
 
-                            bitmap=  generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,dataResponse);
+
+                                bitmap = generateQrCodeValue(context, CA, billTyp, totalPayAmount, curBilDate, arrear, prevblDate, duedate, BillBefDigRbt, blBfrDueDt, i, dataResponse);
+
+
 
                         } else {
                             Toast.makeText(context, "Failure", Toast.LENGTH_SHORT).show();
+
+                            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                            Gson gson = new Gson();
+                            String jsons = mPrefs.getString("MyObject", "");
+                            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                            System.out.println("Sadfgh=="+obj.getIv());
+
+                            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+
+
                         }
                     } else if (response.code() == 400) {
                         Toast.makeText(context, response.body().toString(), Toast.LENGTH_SHORT).show();
+                        SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                        Gson gson = new Gson();
+                        String jsons = mPrefs.getString("MyObject", "");
+                        ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                        System.out.println("Sadfgh=="+obj.getIv());
+
+                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+
                     } else {
                         Toast.makeText(context, "Something went wrong !!", Toast.LENGTH_LONG).show();
+                        SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                        Gson gson = new Gson();
+                        String jsons = mPrefs.getString("MyObject", "");
+                        ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                        System.out.println("Sadfgh=="+obj.getIv());
+
+                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+
                     }
                 }
 
@@ -437,13 +658,473 @@ public class CommonMethod {
                     t.printStackTrace();
                     Log.i("TAG", t.getMessage());
 
+                    SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                    Gson gson = new Gson();
+                    String jsons = mPrefs.getString("MyObject", "");
+                    ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                    System.out.println("Sadfgh=="+obj.getIv());
+
+                    generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+
+
                 }
             });
         } catch (Exception e) {
             e.printStackTrace();
+
+            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+            Gson gson = new Gson();
+            String jsons = mPrefs.getString("MyObject", "");
+            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+            System.out.println("Sadfgh=="+obj.getIv());
+
+            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+
+
         }
-         return bitmap;
+
+    }else {
+
+            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+            Gson gson = new Gson();
+            String jsons = mPrefs.getString("MyObject", "");
+            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+            System.out.println("Sadfgh=="+obj.getIv());
+
+            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+        }
+        return bitmap;
     }
+
+
+
+
+
+    public static Bitmap callGetTokenAPICA(Context context,String CA, String billTyp,int i,String base1,String base2,String clientId,String clientSecret,String resource,String appId,String token,String type,String discom) {
+
+        if (isNetworkConnected(context)) {
+            // clientId,clientSecret,resource,appId,token,type,discom
+
+            try {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("clientId", clientId);
+                obj.addProperty("clientSecret", clientSecret);
+                obj.addProperty("resource", resource);
+                obj.addProperty("appId", appId);
+
+                ApiInterface service = RetrofitClientInstanceQrCode.postAuthenticationInstance(base1).create(ApiInterface.class);
+                Call<TokenResponse> stringCall = service.callAuthenticationAPI(token, obj);
+
+                stringCall.enqueue(new Callback<TokenResponse>() {
+                    @Override
+                    public void onResponse(Call<TokenResponse> call, Response<TokenResponse> response) {
+                        if (response.code() == 200) {
+                            Log.e("success", "" + response);
+                            if (response.body().getMessage().equalsIgnoreCase("Success")) {
+                                System.out.println("token---   " + response.body().getToken());
+                                //getImages(true, "Bearer "+response.body().getToken());
+                                String sToken = response.body().getToken();
+                                bitmap2 = postScanDataCA(context, sToken, CA, billTyp, i, base2,type,discom);
+
+                            } else {
+                                SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                                Gson gson = new Gson();
+                                String jsons = mPrefs.getString("MyObject", "");
+                                ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                                System.out.println("Sadfgh=="+obj.getIv());
+
+                                generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+                            }
+                        } else if (response.code() == 400) {
+                            Toast.makeText(context, response.body().toString(), Toast.LENGTH_SHORT).show();
+
+                            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                            Gson gson = new Gson();
+                            String jsons = mPrefs.getString("MyObject", "");
+                            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                            System.out.println("Sadfgh=="+obj.getIv());
+
+                            generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+
+
+                        } else {
+                            Toast.makeText(context, "Something went wrong !!", Toast.LENGTH_LONG).show();
+
+                            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                            Gson gson = new Gson();
+                            String jsons = mPrefs.getString("MyObject", "");
+                            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                            System.out.println("Sadfgh=="+obj.getIv());
+
+                            generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<TokenResponse> call, Throwable t) {
+                        Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+                        SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                        Gson gson = new Gson();
+                        String jsons = mPrefs.getString("MyObject", "");
+                        ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                        System.out.println("Sadfgh=="+obj.getIv());
+
+                        generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+                    }
+                });
+
+                //}
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+
+                SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                Gson gson = new Gson();
+                String jsons = mPrefs.getString("MyObject", "");
+                ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                System.out.println("Sadfgh=="+obj.getIv());
+
+                generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+            }
+
+        }else {
+            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+            Gson gson = new Gson();
+            String jsons = mPrefs.getString("MyObject", "");
+            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+            System.out.println("Sadfgh=="+obj.getIv());
+
+            generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+
+        }
+        return bitmap2;
+    }
+
+    public static Bitmap postScanDataCA(Context context,String sToken,String CA, String billTyp,int i,String base2,String type,String discom) {
+        if (isNetworkConnected(context)) {
+            try {
+                ApiInterface service = RetrofitClientInstanceQrCode.postRetrofitInstance(base2).create(ApiInterface.class);
+                ScanDataRequest scanData = new ScanDataRequest();
+                scanData.setType(type);
+                scanData.setDiscom(discom);
+
+                Call<ScanDataResponse> call = service.call_ScanDataApi("Bearer" + " " + sToken, scanData);
+                call.enqueue(new Callback<ScanDataResponse>() {
+                    @Override
+                    public void onResponse(Call<ScanDataResponse> call, Response<ScanDataResponse> response) {
+
+                        if (response.code() == 200) {
+
+                            ScanDataResponse dataResponse = response.body();
+
+                            // System.out.println("response---- " + response.body().toString());
+                            if (dataResponse.getStatus().equalsIgnoreCase("Success")) {
+                                Toast.makeText(context, "Successful", Toast.LENGTH_SHORT).show();
+                                sApiSaltKey = dataResponse.getSaltKey();
+                                sApiVersionKey = dataResponse.getVersionKey();
+                                sApiIvDec = dataResponse.getIv();
+                                sApiEncBaseUrl = dataResponse.getBaseUrl();
+
+
+
+                                SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+
+                                SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                                Gson gson = new Gson();
+                                String json = gson.toJson(dataResponse);
+                                prefsEditor.putString("MyObject", json);
+                                prefsEditor.commit();
+
+
+
+
+
+                                int scanLength = 0;
+
+                                scanLength = dataValueModels.size();//6
+
+                       /*     int cntKey = 0;
+                            try {
+                                if (sec < scanLength) {
+                                    cntKey = sec;
+                                } else {
+                                    cntKey = sec % scanLength;
+                                }
+                            }catch (Exception ex){
+                                ex.printStackTrace();
+                            }
+
+
+                            GetSanDataValueModel getSanDataValueModel=new GetSanDataValueModel();
+
+
+
+                            dataValueModels*/
+
+                                //  getScanId();
+                           /* DatabaseHelper db=new DatabaseHelper(context);
+                            db.deleteTable();
+                            for (int i = 0; i < dataResponse.getData().size(); i++) {
+                                db.insertscandataval(sApiSaltKey, sApiVersionKey, sApiIvDec, sApiEncBaseUrl, dataResponse.getData().get(i).getENC_TYPE_ID(), dataResponse.getData().get(i).getScanId(),dataResponse.getData().get(i).getPosition(),dataResponse.getData().get(i).getT1(),dataResponse.getData().get(i).getStartdate(),dataResponse.getData().get(i).getEndDate());
+
+                            }*/
+
+
+                                    bitmap = generateQrCodeValueCA(context, CA, billTyp, i, dataResponse);
+
+
+
+                            } else {
+                                Toast.makeText(context, "Failure", Toast.LENGTH_SHORT).show();
+
+                                SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                                Gson gson = new Gson();
+                                String jsons = mPrefs.getString("MyObject", "");
+                                ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                                System.out.println("Sadfgh=="+obj.getIv());
+
+                                generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+                            }
+                        } else if (response.code() == 400) {
+                            Toast.makeText(context, response.body().toString(), Toast.LENGTH_SHORT).show();
+                            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                            Gson gson = new Gson();
+                            String jsons = mPrefs.getString("MyObject", "");
+                            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                            System.out.println("Sadfgh=="+obj.getIv());
+
+                            generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+                        } else {
+                            Toast.makeText(context, "Something went wrong !!", Toast.LENGTH_LONG).show();
+                            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                            Gson gson = new Gson();
+                            String jsons = mPrefs.getString("MyObject", "");
+                            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                            System.out.println("Sadfgh=="+obj.getIv());
+
+                            generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ScanDataResponse> call, Throwable t) {
+
+                        t.printStackTrace();
+                        Log.i("TAG", t.getMessage());
+
+                        SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                        Gson gson = new Gson();
+                        String jsons = mPrefs.getString("MyObject", "");
+                        ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                        System.out.println("Sadfgh=="+obj.getIv());
+
+                        generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+                Gson gson = new Gson();
+                String jsons = mPrefs.getString("MyObject", "");
+                ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                System.out.println("Sadfgh=="+obj.getIv());
+
+                generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+            }
+
+        }else {
+            SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+            Gson gson = new Gson();
+            String jsons = mPrefs.getString("MyObject", "");
+            ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+            System.out.println("Sadfgh=="+obj.getIv());
+
+            generateQrCodeValueCA( context, CA,  billTyp,  i,obj);
+        }
+        return bitmap;
+    }
+
+
+
+
+    public static Bitmap callGetTokenAPILogin(Context context ,String base1,String base2,String clientId,String clientSecret,String resource,String appId,String token,String type,String discom) {
+
+        if (isNetworkConnected(context)) {
+            // clientId,clientSecret,resource,appId,token,type,discom
+
+            try {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("clientId", clientId);
+                obj.addProperty("clientSecret", clientSecret);
+                obj.addProperty("resource", resource);
+                obj.addProperty("appId", appId);
+
+                ApiInterface service = RetrofitClientInstanceQrCode.postAuthenticationInstance(base1).create(ApiInterface.class);
+                Call<TokenResponse> stringCall = service.callAuthenticationAPI(token, obj);
+
+                stringCall.enqueue(new Callback<TokenResponse>() {
+                    @Override
+                    public void onResponse(Call<TokenResponse> call, Response<TokenResponse> response) {
+                        if (response.code() == 200) {
+                            Log.e("success", "" + response);
+                            if (response.body().getMessage().equalsIgnoreCase("Success")) {
+                                System.out.println("token---   " + response.body().getToken());
+                                //getImages(true, "Bearer "+response.body().getToken());
+                                String sToken = response.body().getToken();
+                                bitmap2 = postScanDataLogin(context, sToken, base2,type,discom);
+
+                            } else {
+                            }
+                        } else if (response.code() == 400) {
+                            Toast.makeText(context, response.body().toString(), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(context, "Something went wrong !!", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<TokenResponse> call, Throwable t) {
+                        Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                //}
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
+        return bitmap2;
+    }
+
+    public static Bitmap postScanDataLogin(Context context,String sToken,String base2,String type,String discom) {
+        if (isNetworkConnected(context)) {
+            try {
+                ApiInterface service = RetrofitClientInstanceQrCode.postRetrofitInstance(base2).create(ApiInterface.class);
+                ScanDataRequest scanData = new ScanDataRequest();
+                scanData.setType(type);
+                scanData.setDiscom(discom);
+
+                Call<ScanDataResponse> call = service.call_ScanDataApi("Bearer" + " " + sToken, scanData);
+                call.enqueue(new Callback<ScanDataResponse>() {
+                    @Override
+                    public void onResponse(Call<ScanDataResponse> call, Response<ScanDataResponse> response) {
+
+                        if (response.code() == 200) {
+
+                            ScanDataResponse dataResponse = response.body();
+
+                            // System.out.println("response---- " + response.body().toString());
+                            if (dataResponse.getStatus().equalsIgnoreCase("Success")) {
+                                Toast.makeText(context, "Successful", Toast.LENGTH_SHORT).show();
+                                sApiSaltKey = dataResponse.getSaltKey();
+                                sApiVersionKey = dataResponse.getVersionKey();
+                                sApiIvDec = dataResponse.getIv();
+                                sApiEncBaseUrl = dataResponse.getBaseUrl();
+
+                                SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+
+                                SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                                Gson gson = new Gson();
+                                String json = gson.toJson(dataResponse);
+                                prefsEditor.putString("MyObject", json);
+                                prefsEditor.commit();
+
+
+
+                             /*
+
+                           SharedPreferences mPrefs = context.getSharedPreferences("QRCODE", Context.MODE_PRIVATE);
+
+                           String jsons = mPrefs.getString("MyObject", "");
+                                ScanDataResponse obj = gson.fromJson(jsons, ScanDataResponse.class);
+
+                                System.out.println("Sadfgh=="+obj.getIv());*/
+
+
+
+
+                                int scanLength = 0;
+
+                                scanLength = dataValueModels.size();//6
+
+                       /*     int cntKey = 0;
+                            try {
+                                if (sec < scanLength) {
+                                    cntKey = sec;
+                                } else {
+                                    cntKey = sec % scanLength;
+                                }
+                            }catch (Exception ex){
+                                ex.printStackTrace();
+                            }
+
+
+                            GetSanDataValueModel getSanDataValueModel=new GetSanDataValueModel();
+
+
+
+                            dataValueModels*/
+
+                                //  getScanId();
+                           /* DatabaseHelper db=new DatabaseHelper(context);
+                            db.deleteTable();
+                            for (int i = 0; i < dataResponse.getData().size(); i++) {
+                                db.insertscandataval(sApiSaltKey, sApiVersionKey, sApiIvDec, sApiEncBaseUrl, dataResponse.getData().get(i).getENC_TYPE_ID(), dataResponse.getData().get(i).getScanId(),dataResponse.getData().get(i).getPosition(),dataResponse.getData().get(i).getT1(),dataResponse.getData().get(i).getStartdate(),dataResponse.getData().get(i).getEndDate());
+
+                            }*/
+
+
+
+                            } else {
+                                Toast.makeText(context, "Failure", Toast.LENGTH_SHORT).show();
+                            }
+                        } else if (response.code() == 400) {
+                            Toast.makeText(context, response.body().toString(), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(context, "Something went wrong !!", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ScanDataResponse> call, Throwable t) {
+
+                        t.printStackTrace();
+                        Log.i("TAG", t.getMessage());
+
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        return bitmap;
+    }
+
+
+
+
+
 
     private static Bitmap generateQR(int i) {
         Bitmap bitmap=null;
@@ -532,56 +1213,19 @@ public class CommonMethod {
         return plainText;
     }
 
-    public static boolean isMyServiceRunning(Context mContext) {
-        try {
-            ActivityManager manager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
-            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                if ("com.tpcodl.billingreading.bleMeter.ScanRecordService".equals(service.service.getClassName()))
-                    return true;
-            }
-        } catch (Exception ex) {
-            Toast.makeText(mContext, "Error checking service status", Toast.LENGTH_SHORT).show();
-        }
-        return false;
 
-    }
-
-  public static   boolean isGPSEnable(Context mcontext){
-        boolean gpsEnable=true;
-        final LocationManager manager = (LocationManager) mcontext.getSystemService( Context.LOCATION_SERVICE );
-
-        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
-            buildAlertMessageNoGps(mcontext);
-            gpsEnable=false;
-        }
-
-
-        return gpsEnable;
-    }
-
-    public static void buildAlertMessageNoGps(Context context) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage("Your GPS seems to be disabled, please enable it.")
-                .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        context.startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
-    }
 
 
     public static byte[] bitmapToByteArray(Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         return baos.toByteArray();
+    }
+
+    public static boolean isNetworkConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
     }
 
 

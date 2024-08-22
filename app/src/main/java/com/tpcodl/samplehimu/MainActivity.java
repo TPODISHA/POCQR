@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.VIBRATE,
-
             android.Manifest.permission.CALL_PHONE
     };
 
@@ -112,7 +111,25 @@ public class MainActivity extends AppCompatActivity {
 
                // Context context,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i
 
-          Bitmap bitmap= CommonMethod.callGetTokenAPI(MainActivity.this,"80000002735","S",26.3,"22-08-2024",100.0,"22-07-2024","09-09-2024",200.0,200.0,0,"https://authservice.tpcentralodisha.com/","https://tqr.tpodisha.com/ScanIdAPI/");
+
+                String clientId="188189a4-48ae-4011-8941-cead0fa4e683";
+                String clientSecret="44c81ff8-ae45-4a5c-833b-02e021f4069a";
+                String resource="AppEncoder";
+                String appId="47d21dc7-788c-4402-872d-bc55dac0e146";
+                String token="2262cb58-76cf-4a9f-b7b8-bd4ff207f18f";
+                String type="BILLQR";
+                String discom="TPCODL";
+
+
+
+
+
+               // CommonMethod.callGetTokenAPILogin();
+
+
+
+          Bitmap bitmap= CommonMethod.callGetTokenAPI(MainActivity.this,"80029475342","S",26.3,"22-08-2024",100.0,"22-07-2024","09-09-2024",200.0,200.0,0,"https://authservice.tpcentralodisha.com/","https://tqr.tpodisha.com/ScanIdAPI/",clientId,clientSecret,resource,appId,token,type,discom);
+
 
                 System.out.println("cvcb==caal");
             }

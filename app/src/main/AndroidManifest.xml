@@ -61,7 +61,7 @@
 
         <receiver android:name=".ImageReceiver" android:exported="true">
             <intent-filter>
-                <action android:name="com.example.SEND_IMAGE" />
+                <action android:name="com.tpodisha.SEND_IMAGE" />
             </intent-filter>
         </receiver>
 
