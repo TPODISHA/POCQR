@@ -421,7 +421,7 @@ public class CommonMethod {
 
 
 
-    public static Bitmap callGetTokenAPI(Context context,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i,String base1,String base2,String clientId,String clientSecret,String resource,String appId,String token,String type,String discom) {
+    public static Bitmap generateQRbILL(Context context,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i,String base1,String base2,String clientId,String clientSecret,String resource,String appId,String token,String type,String discom) {
 
         if (isNetworkConnected(context)) {
            // clientId,clientSecret,resource,appId,token,type,discom
@@ -703,7 +703,7 @@ public class CommonMethod {
 
 
 
-    public static Bitmap callGetTokenAPICA(Context context,String CA, String billTyp,int i,String base1,String base2,String clientId,String clientSecret,String resource,String appId,String token,String type,String discom) {
+    public static Bitmap generateQRCA(Context context,String CA, String billTyp,int i,String base1,String base2,String clientId,String clientSecret,String resource,String appId,String token,String type,String discom) {
 
         if (isNetworkConnected(context)) {
             // clientId,clientSecret,resource,appId,token,type,discom
@@ -965,7 +965,7 @@ public class CommonMethod {
 
 
 
-    public static Bitmap callGetTokenAPILogin(Context context ,String base1,String base2,String clientId,String clientSecret,String resource,String appId,String token,String type,String discom) {
+    public static Bitmap initSDK(Context context ,String base1,String base2,String clientId,String clientSecret,String resource,String appId,String token,String type,String discom) {
 
         if (isNetworkConnected(context)) {
             // clientId,clientSecret,resource,appId,token,type,discom
