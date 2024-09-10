@@ -124,7 +124,7 @@ public class CommonMethod {
 
 
 
-    public static Bitmap generateQrCodeValue(Context context, String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i,ScanDataResponse dataResponse) {
+    public static Bitmap generateQrCodeValue(Context context, String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,double currentDemand,int i,ScanDataResponse dataResponse) {
         //curAmount=1004
         //AmountBefDigRbt=1004
         // totalPayAmount=1020
@@ -201,7 +201,7 @@ public class CommonMethod {
         System.out.println("sec==" + sec);
 
         try {
-            sEncryptedCaMrText = encryptAES(CA + "|" + billTyp + "|" + totalPayAmount + "|" + curBilDate + "|" + arrear + "|" + prevblDate + "|" + duedate + "|" + BillBefDigRbt + "|" + blBfrDueDt, sVersionKey, sIvEnc, sSaltKey);//with all param
+            sEncryptedCaMrText = encryptAES(CA + "|" + billTyp + "|" + totalPayAmount + "|" + curBilDate + "|" + arrear + "|" + prevblDate + "|" + duedate + "|" + BillBefDigRbt + "|" + blBfrDueDt +"|"+currentDemand,sVersionKey, sIvEnc, sSaltKey);//with all param
             //  sEncryptedCaMrText = encryptAES(sCA + "|" + sBillType+ "|" + sPayAmount+ "|" + sCurBillDate+ "|" + sArrear + "|" + sLastBillDate + "|" + sDueDate + "|" + sBillBefDigReb + "|" + sBillBefDueDate, versionkey, iv, saltkey);
             //  sEncryptedCaMrText = encryptAES(sCA + "|" + sBillType+ "|" + sPayAmount+ "|" + sCurBillDate+ "|" + sArrear + "|" + sLastBillDate + "|" + sDueDate + "|" + sBillBefDigReb + "|" + sBillBefDueDate, versionkey, iv, saltkey);//with all param hard coded
             System.out.println("Encrypted text: " + sEncryptedCaMrText);
@@ -421,7 +421,7 @@ public class CommonMethod {
 
 
 
-    public static Bitmap generateQRbILL(Context context,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i,String base1,String base2,String clientId,String clientSecret,String resource,String appId,String token,String type,String discom) {
+    public static Bitmap generateQRbILL(Context context,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,double currentDemand,int i,String base1,String base2,String clientId,String clientSecret,String resource,String appId,String token,String type,String discom) {
 
         if (isNetworkConnected(context)) {
            // clientId,clientSecret,resource,appId,token,type,discom
@@ -445,7 +445,7 @@ public class CommonMethod {
                             System.out.println("token---   " + response.body().getToken());
                             //getImages(true, "Bearer "+response.body().getToken());
                             String sToken = response.body().getToken();
-                            bitmap2 = postScanData(context, sToken, CA, billTyp, totalPayAmount, curBilDate, arrear, prevblDate, duedate, BillBefDigRbt, blBfrDueDt, i, base2,type,discom);
+                            bitmap2 = postScanData(context, sToken, CA, billTyp, totalPayAmount, curBilDate, arrear, prevblDate, duedate, BillBefDigRbt, blBfrDueDt, currentDemand,i, base2,type,discom);
 
                         } else {
 
@@ -456,7 +456,7 @@ public class CommonMethod {
 
                             System.out.println("Sadfgh=="+obj.getIv());
 
-                            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+                            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt,currentDemand, i,obj);
 
 
                         }
@@ -470,7 +470,7 @@ public class CommonMethod {
 
                         System.out.println("Sadfgh=="+obj.getIv());
 
-                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt, blBfrDueDt,currentDemand, i,obj);
 
 
                     } else {
@@ -482,7 +482,7 @@ public class CommonMethod {
 
                         System.out.println("Sadfgh=="+obj.getIv());
 
-                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt,currentDemand, i,obj);
 
                     }
                 }
@@ -498,7 +498,7 @@ public class CommonMethod {
 
                     System.out.println("Sadfgh=="+obj.getIv());
 
-                    generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+                    generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt,currentDemand, i,obj);
 
                 }
             });
@@ -515,7 +515,7 @@ public class CommonMethod {
 
             System.out.println("Sadfgh=="+obj.getIv());
 
-            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt,currentDemand, i,obj);
 
 
         }
@@ -529,12 +529,12 @@ public class CommonMethod {
 
             System.out.println("Sadfgh=="+obj.getIv());
 
-            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt,currentDemand, i,obj);
         }
         return bitmap2;
     }
 
-    public static Bitmap postScanData(Context context,String sToken,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,int i,String base2,String type,String discom) {
+    public static Bitmap postScanData(Context context,String sToken,String CA, String billTyp, double totalPayAmount, String curBilDate, double arrear, String prevblDate, String duedate, double BillBefDigRbt, double blBfrDueDt,double currentDemand,int i,String base2,String type,String discom) {
         if (isNetworkConnected(context)) {
         try {
             ApiInterface service = RetrofitClientInstanceQrCode.postRetrofitInstance(base2).create(ApiInterface.class);
@@ -609,7 +609,7 @@ public class CommonMethod {
                             }*/
 
 
-                                bitmap = generateQrCodeValue(context, CA, billTyp, totalPayAmount, curBilDate, arrear, prevblDate, duedate, BillBefDigRbt, blBfrDueDt, i, dataResponse);
+                                bitmap = generateQrCodeValue(context, CA, billTyp, totalPayAmount, curBilDate, arrear, prevblDate, duedate, BillBefDigRbt, blBfrDueDt, currentDemand,i, dataResponse);
 
 
 
@@ -623,7 +623,7 @@ public class CommonMethod {
 
                             System.out.println("Sadfgh=="+obj.getIv());
 
-                            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+                            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, currentDemand,i,obj);
 
 
                         }
@@ -636,7 +636,7 @@ public class CommonMethod {
 
                         System.out.println("Sadfgh=="+obj.getIv());
 
-                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt,currentDemand, i,obj);
 
                     } else {
                         Toast.makeText(context, "Something went wrong !!", Toast.LENGTH_LONG).show();
@@ -647,7 +647,7 @@ public class CommonMethod {
 
                         System.out.println("Sadfgh=="+obj.getIv());
 
-                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+                        generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, currentDemand,i,obj);
 
                     }
                 }
@@ -665,7 +665,7 @@ public class CommonMethod {
 
                     System.out.println("Sadfgh=="+obj.getIv());
 
-                    generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+                    generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt,currentDemand, i,obj);
 
 
                 }
@@ -680,7 +680,7 @@ public class CommonMethod {
 
             System.out.println("Sadfgh=="+obj.getIv());
 
-            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt,currentDemand, i,obj);
 
 
         }
@@ -694,7 +694,7 @@ public class CommonMethod {
 
             System.out.println("Sadfgh=="+obj.getIv());
 
-            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt, i,obj);
+            generateQrCodeValue( context, CA,  billTyp,  totalPayAmount,  curBilDate,  arrear,  prevblDate,  duedate,  BillBefDigRbt,  blBfrDueDt,currentDemand, i,obj);
         }
         return bitmap;
     }

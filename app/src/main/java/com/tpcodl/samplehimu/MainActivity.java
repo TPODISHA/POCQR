@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-          Bitmap bitmap= CommonMethod.generateQRbILL(MainActivity.this,"80029475342","S",26.3,"22-08-2024",100.0,"22-07-2024","09-09-2024",200.0,200.0,0,"https://authservice.tpcentralodisha.com/","https://tqr.tpodisha.com/ScanIdAPI/",clientId,clientSecret,resource,appId,token,type,discom);
+          Bitmap bitmap= CommonMethod.generateQRbILL(MainActivity.this,"80029475342","S",26.3,"22-08-2024",100.0,"22-07-2024","09-09-2024",200.0,200.0,200,0,"https://authservice.tpcentralodisha.com/","https://tqr.tpodisha.com/ScanIdAPI/",clientId,clientSecret,resource,appId,token,type,discom);
 
 
                 System.out.println("cvcb==caal");
